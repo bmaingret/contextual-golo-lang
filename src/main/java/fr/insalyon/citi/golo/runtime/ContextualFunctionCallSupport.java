@@ -16,6 +16,7 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import fr.insalyon.congolo.decisionmaker.DecisionMakerManager;
 import fr.insalyon.congolo.event.EnvironmentProvider;
 import fr.insalyon.congolo.event.Event;
 import fr.insalyon.congolo.event.FunctionInvocationEvent;
@@ -85,7 +86,7 @@ public final class ContextualFunctionCallSupport {
           callerClass,
           functionName,
           args);
-
+/*
       DM_TOPIC.send(event);
 
       synchronized (LOCK) {
@@ -95,7 +96,8 @@ public final class ContextualFunctionCallSupport {
       }
       MethodHandle handle = handleFromDM;
       handleFromDM = null;
-
+*/
+      MethodHandle handle = ((FunctionInvocationEvent)DecisionMakerManager.getDecisionMaker().decide(event)).getHandle();
       MethodHandle guard = GUARD;
       MethodHandle root = guardWithTest(guard, handle, callSite.fallback);
       callSite.setTarget(root);

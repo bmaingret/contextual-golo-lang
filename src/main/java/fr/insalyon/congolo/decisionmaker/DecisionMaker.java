@@ -8,5 +8,5 @@ public interface DecisionMaker {
 
   public void train();
 
-  public void decide(Event event);
+  public Event decide(Event event);
 }

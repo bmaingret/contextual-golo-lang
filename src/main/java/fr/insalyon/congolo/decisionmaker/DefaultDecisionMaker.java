@@ -43,7 +43,7 @@ public class DefaultDecisionMaker implements DecisionMaker, MessagingFunction {
   }
 
   @Override
-  public void decide(Event event) {
+  public Event decide(Event event) {
     Object source = event.getSource();
     List<Context> contexts = ContextManager.INSTANCE.getContexts(source.toString());
 
@@ -68,7 +68,8 @@ public class DefaultDecisionMaker implements DecisionMaker, MessagingFunction {
         ((FunctionInvocationEvent) event).getParameters());
 
     ((FunctionInvocationEvent) event).setHandle(handle);
-    this.proxyTopic.send(event);
+    //this.proxyTopic.send(event);
+    return event;
   }
 
   protected MethodHandle findHandle(Class target, String methodName, Object[] parameters) {
