@@ -22,6 +22,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 
@@ -34,6 +35,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
   private Deque<LoopStatement> loopStack = new LinkedList<>();
   private GoloCompilationException.Builder exceptionBuilder;
+  private Set<String> contextualFunctionList = new LinkedHashSet<>();
 
   private void resetIndexAssignmentCounter() {
     indexAssignmentCounter = 0;
@@ -96,6 +98,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       AssignmentStatement assign = new AssignmentStatement(self, closureReference);
       function.getBlock().prependStatement(assign);
     }
+    if (function.isContextual()) {
+      String functionName = function.getName();
+      functionName = functionName.substring(0, functionName.indexOf("__$context$__"));
+      contextualFunctionList.add(functionName);
+    }
     functionStack.pop();
   }
 
@@ -148,6 +155,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       } else {
         functionInvocation.setOnReference(true);
       }
+    }
+    if (contextualFunctionList.contains(functionInvocation.getName())) {
+      functionInvocation.setContextual(true);
     }
     for (ExpressionStatement argument : functionInvocation.getArguments()) {
       argument.accept(this);

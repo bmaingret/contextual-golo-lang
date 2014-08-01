@@ -163,8 +163,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTFunctionDeclaration node, Object data) {
     Context context = (Context) data;
+    String nodeName = node.getName();
+
+    if (node.jjtGetNumChildren() > 0) {
+      Node child = node.jjtGetChild(0);
+      if ((child instanceof ASTFunction) && (((ASTFunction) child).isContextual())) {
+        nodeName = node.getName() + "__$context$__" + ((ASTFunction) child).getContexts().get(0);
+      }
+    }
     GoloFunction function = new GoloFunction(
-        node.getName(),
+        nodeName,
         node.isLocal() ? LOCAL : PUBLIC,
         node.isAugmentation() ? AUGMENT : MODULE);
     node.setIrElement(function);
@@ -212,6 +220,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
+    function.setContexts(node.getContexts());
+    function.setContextual(node.isContextual());
     if (AUGMENT.equals(function.getScope())) {
       context.module.addAugmentation(context.augmentation, function);
     } else {

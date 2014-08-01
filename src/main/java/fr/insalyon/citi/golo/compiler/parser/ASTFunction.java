@@ -23,6 +23,8 @@ public class ASTFunction extends GoloASTNode {
   private List<String> arguments;
   private boolean varargs = false;
   private boolean compactForm = false;
+  private boolean contextual = false;
+  private List<String> contexts;
 
   public ASTFunction(int i) {
     super(i);
@@ -32,12 +34,28 @@ public class ASTFunction extends GoloASTNode {
     super(p, i);
   }
 
+  public boolean isContextual() {
+    return contextual;
+  }
+
+  public void setContextual(boolean contextual) {
+    this.contextual = contextual;
+  }
+
   public List<String> getArguments() {
     return arguments;
   }
 
   public void setArguments(List<String> arguments) {
     this.arguments = arguments;
+  }
+
+  public List<String> getContexts() {
+    return contexts;
+  }
+
+  public void setContexts(List<String> contexts) {
+    this.contexts = contexts;
   }
 
   public boolean isVarargs() {
@@ -62,6 +80,8 @@ public class ASTFunction extends GoloASTNode {
         "arguments=" + arguments +
         ", varargs=" + varargs +
         ", compactForm=" + compactForm +
+        ", contexts=" + contexts +
+        ", contextual=" + contextual +
         '}';
   }
 

@@ -42,11 +42,29 @@ public final class GoloFunction extends GoloElement {
   private Block block;
   private boolean synthetic = false;
   private String syntheticSelfName = null;
+  private List<String> contexts = new LinkedList<>();
+  private boolean contextual;
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
     this.visibility = visibility;
     this.scope = scope;
+  }
+
+  public boolean isContextual() {
+    return contextual;
+  }
+
+  public void setContextual(boolean contextual) {
+    this.contextual = contextual;
+  }
+
+  public List<String> getContexts() {
+    return unmodifiableList(contexts);
+  }
+
+  public void setContexts(List<String> contexts) {
+    this.contexts.addAll(contexts);
   }
 
   public Scope getScope() {

@@ -44,6 +44,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final Handle CLASSREF_HANDLE;
   private static final Handle CLOSUREREF_HANDLE;
   private static final Handle CLOSURE_INVOCATION_HANDLE;
+  private static final Handle CONTEXTUAL_FUNCTION_INVOCATION_HANDLE;
 
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
@@ -75,6 +76,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapMethod = "bootstrap";
     description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
     CLOSURE_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+
+    bootstrapOwner = "fr/insalyon/citi/golo/runtime/ContextualFunctionCallSupport";
+    bootstrapMethod = "bootstrap";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    CONTEXTUAL_FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
@@ -103,6 +109,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModule(GoloModule module) {
+    boolean isContextual = false;
+    Set<String> contextSwitchFunctions = new LinkedHashSet<>();
+
     classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     writeImportMetaData(module.getImports());
@@ -110,7 +119,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     jvmKlass = module.getPackageAndClass().toJVMType();
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
+      if (function.isContextual()) {
+        isContextual = true;
+        String contextualFunctionName = function.getName();
+        String functionName = contextualFunctionName.substring(0, contextualFunctionName.indexOf("__$context$__"));
+        contextSwitchFunctions.add(functionName);
+      }
     }
+
     for (Map.Entry<String, Set<GoloFunction>> entry : module.getAugmentations().entrySet()) {
       generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
     }
@@ -412,10 +428,17 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           CLOSURE_INVOCATION_HANDLE);
     } else {
       visitInvocationArguments(functionInvocation);
-      methodVisitor.visitInvokeDynamicInsn(
-          functionInvocation.getName().replaceAll("\\.", "#"),
-          goloFunctionSignature(functionInvocation.getArity()),
-          FUNCTION_INVOCATION_HANDLE);
+      if (functionInvocation.isContextual()) {
+        methodVisitor.visitInvokeDynamicInsn(
+            functionInvocation.getName().replaceAll("\\.", "#"),
+            goloFunctionSignature(functionInvocation.getArity()),
+            CONTEXTUAL_FUNCTION_INVOCATION_HANDLE);
+      } else {
+        methodVisitor.visitInvokeDynamicInsn(
+            functionInvocation.getName().replaceAll("\\.", "#"),
+            goloFunctionSignature(functionInvocation.getArity()),
+            FUNCTION_INVOCATION_HANDLE);
+      }
     }
     for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);

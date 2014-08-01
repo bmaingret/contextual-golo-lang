@@ -377,6 +377,9 @@
           </signature>
           <ignores>
             <ignore>java.lang.invoke.MethodHandle</ignore>
+            <ignore>java.util.concurrent.ConcurrentHashMap.KeySetView</ignore>
+            <ignore>java.util.concurrent.*</ignore>
+            <ignore>java.util.Map</ignore>
           </ignores>
         </configuration>
         <executions>

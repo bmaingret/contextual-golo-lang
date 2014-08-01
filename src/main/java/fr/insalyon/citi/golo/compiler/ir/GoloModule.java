@@ -45,12 +45,20 @@ public final class GoloModule extends GoloElement {
   public static final ModuleImport JAVALANG = new ModuleImport(
       PackageAndClass.fromString("java.lang"));
 
+  public static final ModuleImport CONGOLO_DM = new ModuleImport(
+      PackageAndClass.fromString("fr.insalyon.congolo.decisionmaker"));
+
+  public static final ModuleImport CONGOLO_CONTEXT = new ModuleImport(
+      PackageAndClass.fromString("fr.insalyon.congolo.context"));
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
     imports.add(STD_AUGMENTATIONS);
     imports.add(GOLOLANG);
     imports.add(JAVALANG);
+    imports.add(CONGOLO_DM);
+    imports.add(CONGOLO_CONTEXT);
   }
 
   public void addModuleStateInitializer(ReferenceTable table, AssignmentStatement assignment) {
