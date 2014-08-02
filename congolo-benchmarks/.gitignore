@@ -1,0 +1,9 @@
+target/
+*.ipr
+*.iml
+*.iws
+.idea/
+*.swp
+*.png
+*.py
+*.out
