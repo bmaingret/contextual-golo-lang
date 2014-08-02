@@ -45,7 +45,7 @@ public class DefaultDecisionMaker implements DecisionMaker, MessagingFunction {
   @Override
   public Event decide(Event event) {
     Object source = event.getSource();
-    List<Context> contexts = ContextManager.INSTANCE.getContexts(source.toString());
+    List<Context> contexts = ContextManager.INSTANCE.getContexts(((Class)source).getSimpleName());
 
     Context activatedContext = null;
     for (Context context : contexts) {

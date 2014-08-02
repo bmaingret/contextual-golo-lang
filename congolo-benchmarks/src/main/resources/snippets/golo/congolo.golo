@@ -1,4 +1,4 @@
-module benchmark
+module Benchmark
 
 #############
 

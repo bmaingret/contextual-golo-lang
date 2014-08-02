@@ -69,7 +69,7 @@ public class CongoloMicroBenchmark {
       cm = ContextManager.INSTANCE;
       contextLTE = new LTEConnectivityContext((Object)new Boolean(true));
       contextWiFi = new WiFiConnectivityContext((Object)new Boolean(false));
-      cm.register("Context", contextLTE);
+      cm.register("Benchmark", contextLTE);
       dm = new DefaultDecisionMaker();
       DecisionMakerManager.setDecisionMaker(dm);
     }
